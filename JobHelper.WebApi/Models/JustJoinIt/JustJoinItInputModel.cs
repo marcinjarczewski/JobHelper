@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace JobHelper.WebApi
+namespace JobHelper.WebApi.JustJoinIt
 {
     public class JustJoinItInputModel
     {
@@ -11,6 +11,7 @@ namespace JobHelper.WebApi
 
         public List<JustJoinItInputSkillModel> Skills { get; set; }
 
-        public List<JustJoinItInputSkillModel> BlacklistSkills { get; set; }
+        //maybe in future :)
+        //public List<JustJoinItInputSkillModel> BlacklistSkills { get; set; }
     }
 }

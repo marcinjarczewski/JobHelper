@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace JobHelper.WebApi
+namespace JobHelper.WebApi.Pracujpl
 {
-    public class JustJoinItResultSkillModel
+    public class PracujplResultSkillModel
     {
         public string Name { get; set; }
 

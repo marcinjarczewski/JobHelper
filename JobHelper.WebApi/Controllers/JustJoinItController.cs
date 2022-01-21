@@ -1,4 +1,6 @@
 ﻿using JobHelper.WebApi.Enums;
+using JobHelper.WebApi.Helpers;
+using JobHelper.WebApi.JustJoinIt;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -43,32 +45,16 @@ namespace JobHelper.WebApi.Controllers
             }
             result.CompanySize = response.company_size;
             var body = response.body.ToLower();
-            var language = GetLanguage(body);
+            var language = HtmlHelper.GetLanguage(body);
             result.OfferLanguage = language.ToString();
 
             if(model.Skills != null)
             {
                 result.Skills = CheckSkills(model.Skills, body, response.skills);
             }
-            result.EnglishEvaluation = GetEnglishLevel(language, body);
+            result.EnglishEvaluation = HtmlHelper.GetEnglishLevel(language, body);
 
             return result;
-        }
-
-        private LanguageEnum GetLanguage(string body)
-        {
-            int polishPoints = body.Split(" się ").Count() *2 - 2 + body.Split(" dla ").Count() * 2 - 2 + +body.Split(" z ").Count() - 1;
-            int englishPoints = body.Split(" the ").Count() * 5 - 5;
-            if(polishPoints > englishPoints)
-            {
-                return LanguageEnum.Polish;
-            }
-            if (polishPoints < englishPoints)
-            {
-                return LanguageEnum.English;
-            }
-
-            return LanguageEnum.Unknown; 
         }
 
         private List<JustJoinItResultSkillModel> CheckSkills(List<JustJoinItInputSkillModel> skills, string body, List<JustJoinItApiSkillModel> responseSkills)
@@ -91,53 +77,6 @@ namespace JobHelper.WebApi.Controllers
                 result.Add(resultEntry);
             }
 
-            return result;
-        }
-
-        private string GetEnglishLevel(LanguageEnum language, string body)
-        {
-            var lowerBody = body.ToLower();
-            string toSearch = "";
-            switch (language)
-            {
-                case LanguageEnum.Unknown:
-                    return "";
-                case LanguageEnum.Polish:
-                    toSearch = "angielski";
-                    break;
-                case LanguageEnum.English:
-                    toSearch = "english";
-                    break;
-                default:
-                    break;
-            }
-            var index = lowerBody.IndexOf(toSearch);
-            if(index <= 0)
-            {
-                return "";
-            }
-            //search for firstTag after text
-            var closeTagIndex = lowerBody.IndexOf("</", index);
-            if(closeTagIndex <= index)
-            {
-                return "";
-            }
-            //search for end of closing tag
-            var closeTagEndIndex = lowerBody.IndexOf(">", closeTagIndex);
-            if (closeTagEndIndex <= closeTagIndex)
-            {
-                return "";
-            }
-            //get tag name
-            var closeTagName = lowerBody.Substring(closeTagIndex + "</".Length, closeTagEndIndex - closeTagIndex - "</".Length);
-            //calculate begin tab position
-            var beginTagIndex = lowerBody.Substring(0, closeTagEndIndex).LastIndexOf($"<{closeTagName}>");
-            if(beginTagIndex < 0)
-            {
-                return "";
-            }
-            //get text between tags
-            var result = lowerBody.Substring(beginTagIndex + $"<{closeTagName}>".Length, closeTagIndex - beginTagIndex - $"<{closeTagName}>".Length);
             return result;
         }
     }
