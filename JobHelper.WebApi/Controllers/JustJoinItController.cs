@@ -1,4 +1,5 @@
-﻿using JobHelper.WebApi.Helpers;
+﻿using System;
+using JobHelper.WebApi.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -30,30 +31,37 @@ namespace JobHelper.WebApi.Controllers
                 return new JsonResult(new { error = "Only justjoin.it sites are allowed." });
             }
 
-            var apiUrl = model.Url.Replace("https://justjoin.it/offers", "https://justjoin.it/api/offers");
+            string offerName = model.Url.Replace("https://justjoin.it/offers/", "");
+            string apiUrl = $"https://justjoin.it/_next/data/{model.ApiKey}/offers/{offerName}.json";
 
-
-            JustJoinItApiResultModel response;
-            using (WebClient wc = new WebClient())
+            try
             {
-                var data = wc.DownloadString(apiUrl);
-                response = JsonConvert.DeserializeObject<JustJoinItApiResultModel>(data);
+                JustJoinItApiResultModel response;
+                using (WebClient wc = new WebClient())
+                {
+                    var data = wc.DownloadString(apiUrl);
+                    response = JsonConvert.DeserializeObject<JustJoinItApiResultModel>(data);
+                }
+
+                var result = new JustJoinItResultModel();
+                result.CompanySize = response?.pageProps?.offer?.companySize;
+                var body = response?.pageProps?.offer?.body.ToLower();
+                var language = HtmlHelper.GetLanguage(body);
+                result.OfferLanguage = language.ToString();
+
+                if (model.Skills != null)
+                {
+                    result.Skills = CheckSkills(model.Skills, body,
+                        response?.pageProps?.offer?.requiredSkills ?? new List<JustJoinItApiSkillModel>());
+                }
+
+                result.EnglishEvaluation = HtmlHelper.GetEnglishLevel(language, body);
+                return result;
             }
-
-            var result = new JustJoinItResultModel();
-            result.CompanySize = response?.pageProps?.offer?.companySize;
-            var body = response?.pageProps?.offer?.body.ToLower();
-            var language = HtmlHelper.GetLanguage(body);
-            result.OfferLanguage = language.ToString();
-
-            if (model.Skills != null)
+            catch
             {
-                result.Skills = CheckSkills(model.Skills, body, response?.pageProps?.offer?.requiredSkills ?? new List<JustJoinItApiSkillModel>());
+                return "Processing server error";
             }
-
-            result.EnglishEvaluation = HtmlHelper.GetEnglishLevel(language, body);
-
-            return result;
         }
 
         private List<JustJoinItResultSkillModel> CheckSkills(List<JustJoinItInputSkillModel> skills, string body, List<JustJoinItApiSkillModel> responseSkills)
@@ -70,7 +78,7 @@ namespace JobHelper.WebApi.Controllers
                 }
                 else if(skill.SearchInDescription)
                 {
-                   resultEntry.IsInDescription = lowerBody.IndexOf(skill.Name.ToLower()) >= 0;
+                   resultEntry.IsInDescription = lowerBody.IndexOf(skill.Name.ToLower(), StringComparison.Ordinal) >= 0;
                 }
 
                 result.Add(resultEntry);
