@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-
-namespace JobHelper.WebApi.JustJoinIt
+namespace JobHelper.WebApi.Models.JustJoinIt
 {
     public class JustJoinItApiResultModel
     {
-        public string company_size { get; set; }
-
-        public string body { get; set; }
-
-        public List<JustJoinItApiSkillModel> skills { get; set; }
+        public JustJoinItApiPagePropsModel pageProps { get; set; }
     }
 }

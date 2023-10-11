@@ -1,14 +1,10 @@
-﻿using JobHelper.WebApi.Enums;
-using JobHelper.WebApi.Helpers;
-using JobHelper.WebApi.JustJoinIt;
+﻿using JobHelper.WebApi.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
+using JobHelper.WebApi.Models.JustJoinIt;
 
 namespace JobHelper.WebApi.Controllers
 {
@@ -36,22 +32,25 @@ namespace JobHelper.WebApi.Controllers
 
             var apiUrl = model.Url.Replace("https://justjoin.it/offers", "https://justjoin.it/api/offers");
 
-            var result = new JustJoinItResultModel();
+
             JustJoinItApiResultModel response;
             using (WebClient wc = new WebClient())
             {
                 var data = wc.DownloadString(apiUrl);
                 response = JsonConvert.DeserializeObject<JustJoinItApiResultModel>(data);
             }
-            result.CompanySize = response.company_size;
-            var body = response.body.ToLower();
+
+            var result = new JustJoinItResultModel();
+            result.CompanySize = response?.pageProps?.offer?.companySize;
+            var body = response?.pageProps?.offer?.body.ToLower();
             var language = HtmlHelper.GetLanguage(body);
             result.OfferLanguage = language.ToString();
 
-            if(model.Skills != null)
+            if (model.Skills != null)
             {
-                result.Skills = CheckSkills(model.Skills, body, response.skills);
+                result.Skills = CheckSkills(model.Skills, body, response?.pageProps?.offer?.requiredSkills ?? new List<JustJoinItApiSkillModel>());
             }
+
             result.EnglishEvaluation = HtmlHelper.GetEnglishLevel(language, body);
 
             return result;

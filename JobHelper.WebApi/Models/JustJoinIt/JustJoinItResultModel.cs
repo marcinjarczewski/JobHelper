@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 
-namespace JobHelper.WebApi.JustJoinIt
+namespace JobHelper.WebApi.Models.JustJoinIt
 {
     public class JustJoinItResultModel
     {

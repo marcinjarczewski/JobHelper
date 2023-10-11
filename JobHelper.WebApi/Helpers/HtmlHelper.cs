@@ -1,8 +1,6 @@
 ﻿using JobHelper.WebApi.Enums;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace JobHelper.WebApi.Helpers
 {
@@ -17,13 +15,13 @@ namespace JobHelper.WebApi.Helpers
         public static string GetTextBetweenTags(string lowerBody, int index)
         {
             //search for firstTag after text
-            var closeTagIndex = lowerBody.IndexOf("</", index);
+            var closeTagIndex = lowerBody.IndexOf("</", index, StringComparison.Ordinal);
             if (closeTagIndex <= index)
             {
                 return "";
             }
             //search for end of closing tag
-            var closeTagEndIndex = lowerBody.IndexOf(">", closeTagIndex);
+            var closeTagEndIndex = lowerBody.IndexOf(">", closeTagIndex, StringComparison.Ordinal);
             if (closeTagEndIndex <= closeTagIndex)
             {
                 return "";
@@ -31,7 +29,7 @@ namespace JobHelper.WebApi.Helpers
             //get tag name
             var closeTagName = lowerBody.Substring(closeTagIndex + "</".Length, closeTagEndIndex - closeTagIndex - "</".Length);
             //calculate begin tab position
-            var beginTagIndex = lowerBody.Substring(0, closeTagEndIndex).LastIndexOf($"<{closeTagName}");
+            var beginTagIndex = lowerBody.Substring(0, closeTagEndIndex).LastIndexOf($"<{closeTagName}", StringComparison.Ordinal);
             if (beginTagIndex < 0)
             {
                 return "";
@@ -60,17 +58,16 @@ namespace JobHelper.WebApi.Helpers
                 case LanguageEnum.English:
                     toSearch = "english";
                     break;
-                default:
-                    break;
             }
-            var index = lowerBody.IndexOf(toSearch);
+
+            int index = lowerBody.IndexOf(toSearch, StringComparison.Ordinal);
             if (index <= 0)
             {
                 return "";
             }
 
-            var result = HtmlHelper.GetTextBetweenTags(lowerBody, index);
-            return result.Substring(result.LastIndexOf('>')+1); 
+            string result = GetTextBetweenTags(lowerBody, index);
+            return result.Substring(result.LastIndexOf('>') + 1);
         }
 
         /// <summary>
@@ -86,6 +83,7 @@ namespace JobHelper.WebApi.Helpers
             {
                 return LanguageEnum.Polish;
             }
+
             if (polishPoints < englishPoints)
             {
                 return LanguageEnum.English;

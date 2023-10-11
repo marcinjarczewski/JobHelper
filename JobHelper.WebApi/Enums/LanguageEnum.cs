@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace JobHelper.WebApi.Enums
+﻿namespace JobHelper.WebApi.Enums
 {
     public enum LanguageEnum
     {

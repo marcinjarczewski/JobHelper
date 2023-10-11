@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace JobHelper.WebApi.JustJoinIt
+namespace JobHelper.WebApi
 {
     public class JustJoinItApiSkillModel
     {
