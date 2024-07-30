@@ -32,7 +32,7 @@ namespace JobHelper.WebApi.Controllers
             }
 
             string offerName = model.Url.Replace("https://justjoin.it/offers/", "");
-            string apiUrl = $"https://justjoin.it/_next/data/{model.ApiKey}/offers/{offerName}.json";
+            string apiUrl = $"https://justjoin.it/_next/data/{model.ApiKey}/pl/offers/{offerName}.json";
 
             try
             {
