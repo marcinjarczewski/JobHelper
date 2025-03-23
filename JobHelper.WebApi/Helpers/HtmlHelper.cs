@@ -1,6 +1,7 @@
 ﻿using JobHelper.WebApi.Enums;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace JobHelper.WebApi.Helpers
 {
@@ -59,15 +60,24 @@ namespace JobHelper.WebApi.Helpers
                     toSearch = "english";
                     break;
             }
-
+            // Usuń sekwencje Unicode w formacie \uXXXX
+            lowerBody = Regex.Replace(lowerBody, @"\\u[0-9a-fA-F]{4}", "");
+            // Usuń sekwencje Unicode w formacie \u00XX
+            lowerBody = Regex.Replace(lowerBody, @"\\u00[0-9a-fA-F]{2}", "");
+            // Usuń inne znaki kontrolne i niepożądane znaki
+            lowerBody = Regex.Replace(lowerBody, @"[\u0000-\u001F\u007F-\u009F]", "");
+            // Usuń znaczniki HTML i znaki nowej linii
+            lowerBody = Regex.Replace(lowerBody, @"(/strong|\\n|/li|\<|\>)", "");
+            
             int index = lowerBody.IndexOf(toSearch, StringComparison.Ordinal);
             if (index <= 0)
             {
                 return "";
             }
 
-            string result = GetTextBetweenTags(lowerBody, index);
-            return result.Substring(result.LastIndexOf('>') + 1);
+            int minIndex = Math.Max(0, index - 30);
+
+            return lowerBody.Substring(minIndex, 150);
         }
 
         /// <summary>
